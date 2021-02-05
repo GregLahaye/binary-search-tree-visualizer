@@ -4,6 +4,32 @@ class TreeNode {
     this.left = left;
     this.right = right;
   }
+
+  find(key) {
+    return this.findRec(key, this);
+  }
+
+  async findRec(key, currNode) {
+    let value = null;
+
+    if (currNode == null) {
+      throw new Error("Key " + key + " not found");
+    }
+
+    highlight(currNode.val);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (key === currNode.val) {
+      value = currNode.val;
+      found(currNode.val);
+    } else if (key < currNode.val) {
+      value = this.findRec(key, currNode.left);
+    } else {
+      value = this.findRec(key, currNode.right);
+    }
+
+    return value;
+  }
 }
 
 class Point {
@@ -25,7 +51,7 @@ function generateTree(lower, upper) {
   const [leftNode, leftHeight] = generateTree(lower, middle);
   const [rightNode, rightHeight] = generateTree(middle, upper);
 
-  const root = new TreeNode(middle, leftNode, rightNode);
+  const root = new TreeNode(Math.round(middle), leftNode, rightNode);
 
   const height = Math.max(leftHeight, rightHeight) + 1;
 
@@ -43,17 +69,13 @@ function generateSVG(root, radius, p1, p2) {
   const point = new Point(x, y);
 
   circles.push(
-    `<circle cx="${point.x}" cy="${
+    `<circle data-value="${root.val}" cx="${point.x}" cy="${
       point.y
-    }" r="${radius}" stroke="black" stroke-width="${radius / 5}" fill="red" />`
+    }" r="${radius}" stroke="black" stroke-width="${radius / 5}" fill="gray" />`
   );
 
   texts.push(
-    `<text x="${point.x}" y="${
-      point.y
-    }" text-anchor="middle" alignment-baseline="middle" fill="white" font-size="${radius}">${Math.round(
-      root.val
-    )}</text>`
+    `<text data-value="${root.val}" x="${point.x}" y="${point.y}" text-anchor="middle" alignment-baseline="middle" fill="white" font-size="${radius}">${root.val}</text>`
   );
 
   if (root.left) {
@@ -65,7 +87,9 @@ function generateSVG(root, radius, p1, p2) {
     );
 
     lines.push(
-      `<line x1="${point.x}" y1="${point.y}" x2="${leftPoint.x}" y2="${
+      `<line data-src="${root.val}" data-dst="${root.left.val}" x1="${
+        point.x
+      }" y1="${point.y}" x2="${leftPoint.x}" y2="${
         leftPoint.y
       }" style="stroke: black; stroke-width: ${radius / 5}" />`
     );
@@ -84,7 +108,9 @@ function generateSVG(root, radius, p1, p2) {
     );
 
     lines.push(
-      `<line x1="${point.x}" y1="${point.y}" x2="${rightPoint.x}" y2="${
+      `<line data-src="${root.val}" data-dst="${root.right.val}" x1="${
+        point.x
+      }" y1="${point.y}" x2="${rightPoint.x}" y2="${
         rightPoint.y
       }" style="stroke: black; stroke-width: ${radius / 5}" />`
     );
@@ -108,12 +134,39 @@ function draw() {
   const radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
 
   const [lines, circles, texts] = generateSVG(root, radius, srcPoint, dstPoint);
-  const elements = [...lines, ...circles, ...texts];
+  elements = [...lines, ...circles, ...texts];
   const innerHTML = elements.join("\n");
   document.getElementById("visual").innerHTML = innerHTML;
+
+  root.find(Math.round(Math.random() * 100));
+}
+
+function highlight(val) {
+  for (const element of document.getElementsByTagName("circle")) {
+    if (+element.dataset.value === val) {
+      element.style.fill = "coral";
+    }
+  }
+
+  for (const element of document.getElementsByTagName("line")) {
+    if (+element.dataset.dst === val) {
+      element.style.stroke = "coral";
+      element.style.strokeWidth = element.style.strokeWidth * 2;
+    }
+  }
+}
+
+function found(val) {
+  for (const element of document.getElementsByTagName("circle")) {
+    if (+element.dataset.value === val) {
+      element.style.fill = "lime";
+    }
+  }
 }
 
 const TREE_SPAWN_MULTIPLIER = 8;
 const MAX_RADIUS = 5;
+
+let elements;
 
 draw();
