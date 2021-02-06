@@ -80,7 +80,7 @@ class SVGText {
   }
 
   generate() {
-    return `<text data-key="${this.key}" x="${point.x}" y="${point.y}" font-size="${this.fontSize}" fill="${this.fill}">${key}</text>`;
+    return `<text data-key="${this.key}" x="${this.point.x}" y="${this.point.y}" font-size="${this.fontSize}" fill="${this.fill}" text-anchor="middle" alignment-baseline="middle">${this.key}</text>`;
   }
 }
 
@@ -149,9 +149,7 @@ function generateSVG(root, radius, p1, p2) {
     new SVGCircle(point, root.key, radius, "black", radius / 5, "gray")
   );
 
-  texts.push(
-    `<text data-value="${root.key}" x="${point.x}" y="${point.y}" text-anchor="middle" alignment-baseline="middle" fill="white" font-size="${radius}">${root.key}</text>`
-  );
+  texts.push(new SVGText(root.key, point, radius, "white"));
 
   if (root.left) {
     const [leftLines, leftCircles, leftTexts, leftPoint] = generateSVG(
@@ -212,6 +210,7 @@ function draw() {
   [lines, circles, texts] = generateSVG(root, radius, srcPoint, dstPoint);
 
   circles = circles.map((circle) => circle.generate());
+  texts = texts.map((text) => text.generate());
 
   elements = [...lines, ...circles, ...texts];
   const innerHTML = elements.join("\n");
