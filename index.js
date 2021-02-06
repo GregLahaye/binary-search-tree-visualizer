@@ -22,6 +22,9 @@ class BinarySearchTree {
       throw new Error("Key " + key + " not found");
     }
 
+    this.highlightCircle(currNode.key);
+    await waitAsync(1000);
+
     if (key === currNode.key) {
       value = currNode.key;
     } else if (key < currNode.key) {
@@ -118,20 +121,38 @@ class SVGBinarySearchTree extends BinarySearchTree {
     const height = this.root.height;
     const radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
 
-    let [, lines, circles, texts] = this.generate(
+    const [, lines, circles, texts] = this.generate(
       this.root,
       radius,
       srcPoint,
       dstPoint
     );
 
-    lines = lines.map((line) => line.generate());
-    circles = circles.map((circle) => circle.generate());
-    texts = texts.map((text) => text.generate());
+    this.lines = lines;
+    this.circles = circles;
+    this.texts = texts;
 
-    const elements = [...lines, ...circles, ...texts];
+    this.render();
+  }
+
+  render() {
+    const lineElements = this.lines.map((line) => line.generate());
+    const circleElements = this.circles.map((circle) => circle.generate());
+    const textElements = this.texts.map((text) => text.generate());
+
+    const elements = [...lineElements, ...circleElements, ...textElements];
     const innerHTML = elements.join("\n");
     document.getElementById("visual").innerHTML = innerHTML;
+  }
+
+  highlightCircle(key) {
+    for (const circle of this.circles) {
+      if (circle.key === key) {
+        circle.fill = "green";
+      }
+    }
+
+    this.render();
   }
 }
 
@@ -207,3 +228,4 @@ const MAX_RADIUS = 5;
 const root = generateTree(0, 100);
 const tree = new SVGBinarySearchTree(root);
 tree.draw();
+tree.find(44);
