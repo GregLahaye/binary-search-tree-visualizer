@@ -81,7 +81,7 @@ class SVGBinarySearchTree extends BinarySearchTree {
     texts.push(new SVGText(root.key, point, radius, "white"));
 
     if (root.left) {
-      const [leftLines, leftCircles, leftTexts, leftCircle] = this.generate(
+      const [leftCircle, leftLines, leftCircles, leftTexts] = this.generate(
         root.left,
         radius,
         new Point(p1.x, point.y),
@@ -90,13 +90,13 @@ class SVGBinarySearchTree extends BinarySearchTree {
 
       lines.push(new SVGLine(circle, leftCircle, "black", radius / 5));
 
-      lines = lines.concat(leftLines);
-      circles = circles.concat(leftCircles);
-      texts = texts.concat(leftTexts);
+      lines = [...lines, ...leftLines];
+      circles = [...circles, ...leftCircles];
+      texts = [...texts, ...leftTexts];
     }
 
     if (root.right) {
-      const [rightLines, rightCircles, rightTexts, rightCircle] = this.generate(
+      const [rightCircle, rightLines, rightCircles, rightTexts] = this.generate(
         root.right,
         radius,
         new Point(point.x, point.y),
@@ -105,12 +105,12 @@ class SVGBinarySearchTree extends BinarySearchTree {
 
       lines.push(new SVGLine(circle, rightCircle, "black", radius / 5));
 
-      lines = lines.concat(rightLines);
-      circles = circles.concat(rightCircles);
-      texts = texts.concat(rightTexts);
+      lines = [...lines, ...rightLines];
+      circles = [...circles, ...rightCircles];
+      texts = [...texts, ...rightTexts];
     }
 
-    return [lines, circles, texts, circle];
+    return [circle, lines, circles, texts];
   }
 
   draw() {
@@ -122,7 +122,7 @@ class SVGBinarySearchTree extends BinarySearchTree {
     const height = this.root.height;
     radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
 
-    [lines, circles, texts] = this.generate(
+    [, lines, circles, texts] = this.generate(
       this.root,
       radius,
       srcPoint,
