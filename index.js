@@ -257,7 +257,7 @@ class SVGLine {
 }
 
 function generateTree(lower, upper) {
-  const delta = ((upper - lower) / 100) * TREE_SPAWN_MULTIPLIER;
+  const delta = ((upper - lower) / MAX_UPPER) * TREE_SPAWN_MULTIPLIER;
 
   if (Math.random() > delta) {
     return null;
@@ -300,7 +300,8 @@ function reset() {
 
 const TREE_SPAWN_MULTIPLIER = 6;
 const MAX_RADIUS = 5;
+const MAX_UPPER = 1000;
 
-const root = generateTree(0, 100);
+const root = generateTree(0, MAX_UPPER);
 const tree = new SVGBinarySearchTree(root);
 tree.draw();
