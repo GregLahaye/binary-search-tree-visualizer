@@ -1,3 +1,11 @@
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
+/* Binary Search Tree class */
 class BinarySearchTree {
   constructor(root) {
     this.root = root;
@@ -14,7 +22,7 @@ class BinarySearchTree {
       throw new Error("Key " + key + " not found");
     }
 
-    highlight(currNode.key);
+    this.highlight(currNode.key);
     await waitAsync(1000);
 
     if (key === currNode.key) {
@@ -38,10 +46,69 @@ class BinarySearchTreeNode {
   }
 }
 
-class Point {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
+/* implements SVG methods */
+class SVGBinarySearchTree extends BinarySearchTree {
+  constructor(root) {
+    super(root);
+    this.texts = [];
+    this.circles = [];
+    this.lines = [];
+  }
+
+  highlight(key) {
+    for (const element of document.getElementsByTagName("circle")) {
+      if (+element.dataset.value === key) {
+        element.style.fill = "coral";
+      }
+    }
+
+    for (const element of document.getElementsByTagName("line")) {
+      if (+element.dataset.dst === key) {
+        element.style.stroke = "coral";
+        element.style.strokeWidth = element.style.strokeWidth * 2;
+      }
+    }
+  }
+}
+
+class SVGText {
+  constructor(key, point, fontSize, fill) {
+    this.key = key;
+    this.point = point;
+    this.fontSize = fontSize;
+    this.fill = fill;
+  }
+
+  generate() {
+    return `<text data-key="${this.key}" x="${point.x}" y="${point.y}" font-size="${this.fontSize}" fill="${this.fill}">${key}</text>`;
+  }
+}
+
+class SVGCircle {
+  constructor(point, key, radius, stroke, strokeWidth, fill) {
+    this.point = point;
+    this.key = key;
+    this.radius = radius;
+    this.stroke = stroke;
+    this.strokeWidth = strokeWidth;
+    this.fill = fill;
+  }
+
+  generate() {
+    return `<circle data-key="${this.key}" cx="${this.point.x}" cy="${this.point.y}" radius="${this.radius}" stroke="${this.stroke}" stroke-width="${this.strokeWidth}" fill="${this.fill}"></circle>`;
+  }
+}
+
+class SVGLine {
+  constructor(src, dst, stroke, strokeWidth) {
+    this.src = src;
+    this.dst = dst;
+    this.stroke = stroke;
+    this.strokeWidth = strokeWidth;
+  }
+
+  generate() {
+    return `<line data-src="${this.src.key}" data-dst="${this.dst.key} x1="${this.src.point.x}" y1="${this.src.point.y}" x2="${this.dst.point.x}" y2="${this.dst.point.y}" stroke="${this.stroke}" stroke-width="${this.strokeWidth}"></line>`;
   }
 }
 
@@ -140,7 +207,7 @@ function draw() {
   const yDelta = dstPoint.y - srcPoint.y;
 
   const [root, height] = generateTree(0, 100);
-  const tree = new BinarySearchTree(root);
+  const tree = new SVGBinarySearchTree(root);
 
   radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
 
@@ -151,21 +218,6 @@ function draw() {
   document.getElementById("visual").innerHTML = innerHTML;
 
   tree.find(Math.round(Math.random() * 100));
-}
-
-function highlight(val) {
-  for (const element of document.getElementsByTagName("circle")) {
-    if (+element.dataset.value === val) {
-      element.style.fill = "coral";
-    }
-  }
-
-  for (const element of document.getElementsByTagName("line")) {
-    if (+element.dataset.dst === val) {
-      element.style.stroke = "coral";
-      element.style.strokeWidth = element.style.strokeWidth * 2;
-    }
-  }
 }
 
 function found(val) {
