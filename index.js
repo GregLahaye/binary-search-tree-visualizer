@@ -145,6 +145,7 @@ function highlight(val) {
   for (const element of document.getElementsByTagName("circle")) {
     if (+element.dataset.value === val) {
       element.style.fill = "coral";
+      element.classList.add("move");
     }
   }
 
@@ -160,6 +161,36 @@ function found(val) {
   for (const element of document.getElementsByTagName("circle")) {
     if (+element.dataset.value === val) {
       element.style.fill = "lime";
+    }
+  }
+}
+
+function deleteNode(srcVal, dstVal) {
+  let srcPoint;
+  let dstPoint;
+
+  for (const element of document.getElementsByTagName("circle")) {
+    if (+element.dataset.value === srcVal) {
+      srcPoint = new Point(
+        element.getAttribute("cx"),
+        element.getAttribute("cy")
+      );
+    } else if (+element.dataset.value === dstVal) {
+      dstPoint = new Point(
+        element.getAttribute("cx"),
+        element.getAttribute("cy")
+      );
+    }
+  }
+
+  let movement = new Point(srcPoint.x - dstPoint.x, srcPoint.y - dstPoint.y);
+
+  for (const element of document.getElementsByTagName("circle")) {
+    if (+element.dataset.value === srcVal) {
+      element.classList.add("deleted");
+    } else if (+element.dataset.value === dstVal) {
+      element.style.transform = `translate(${movement.x}px, ${movement.y}px)`;
+      element.style.transition = "all 0.5s linear";
     }
   }
 }
