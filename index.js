@@ -48,11 +48,90 @@ class BinarySearchTreeNode {
 
 /* implements SVG methods */
 class SVGBinarySearchTree extends BinarySearchTree {
-  constructor(root) {
+  constructor(root, height) {
     super(root);
-    this.texts = [];
-    this.circles = [];
-    this.lines = [];
+    this.height = height;
+  }
+
+  generate(root, radius, p1, p2) {
+    let lines = [];
+    let circles = [];
+    let texts = [];
+
+    const xDelta = (p2.x - p1.x) / 2;
+    const x = p1.x + xDelta;
+    const y = p1.y + radius * 3;
+    const point = new Point(x, y);
+
+    const circle = new SVGCircle(
+      point,
+      root.key,
+      radius,
+      "black",
+      radius / 5,
+      "gray"
+    );
+    circles.push(circle);
+
+    texts.push(new SVGText(root.key, point, radius, "white"));
+
+    if (root.left) {
+      const [leftLines, leftCircles, leftTexts, leftCircle] = this.generate(
+        root.left,
+        radius,
+        new Point(p1.x, point.y),
+        new Point(point.x, p2.y)
+      );
+
+      lines.push(new SVGLine(circle, leftCircle, "black", radius / 5));
+
+      lines = lines.concat(leftLines);
+      circles = circles.concat(leftCircles);
+      texts = texts.concat(leftTexts);
+    }
+
+    if (root.right) {
+      const [rightLines, rightCircles, rightTexts, rightCircle] = this.generate(
+        root.right,
+        radius,
+        new Point(point.x, point.y),
+        new Point(p2.x, p2.y)
+      );
+
+      lines.push(new SVGLine(circle, rightCircle, "black", radius / 5));
+
+      lines = lines.concat(rightLines);
+      circles = circles.concat(rightCircles);
+      texts = texts.concat(rightTexts);
+    }
+
+    return [lines, circles, texts, circle];
+  }
+
+  draw() {
+    const srcPoint = new Point(0, 0);
+    const dstPoint = new Point(100, 100);
+
+    const yDelta = dstPoint.y - srcPoint.y;
+
+    radius = Math.min(yDelta / 2 ** this.height, MAX_RADIUS);
+
+    [lines, circles, texts] = this.generate(
+      this.root,
+      radius,
+      srcPoint,
+      dstPoint
+    );
+
+    lines = lines.map((line) => line.generate());
+    circles = circles.map((circle) => circle.generate());
+    texts = texts.map((text) => text.generate());
+
+    elements = [...lines, ...circles, ...texts];
+    const innerHTML = elements.join("\n");
+    document.getElementById("visual").innerHTML = innerHTML;
+
+    tree.find(Math.round(Math.random() * 100));
   }
 
   highlight(key) {
@@ -133,85 +212,6 @@ function generateTree(lower, upper) {
   const height = Math.max(leftHeight, rightHeight) + 1;
 
   return [root, height];
-}
-
-function generateSVG(root, radius, p1, p2) {
-  let lines = [];
-  let circles = [];
-  let texts = [];
-
-  const xDelta = (p2.x - p1.x) / 2;
-  const x = p1.x + xDelta;
-  const y = p1.y + radius * 3;
-  const point = new Point(x, y);
-
-  const circle = new SVGCircle(
-    point,
-    root.key,
-    radius,
-    "black",
-    radius / 5,
-    "gray"
-  );
-  circles.push(circle);
-
-  texts.push(new SVGText(root.key, point, radius, "white"));
-
-  if (root.left) {
-    const [leftLines, leftCircles, leftTexts, leftCircle] = generateSVG(
-      root.left,
-      radius,
-      new Point(p1.x, point.y),
-      new Point(point.x, p2.y)
-    );
-
-    lines.push(new SVGLine(circle, leftCircle, "black", radius / 5));
-
-    lines = lines.concat(leftLines);
-    circles = circles.concat(leftCircles);
-    texts = texts.concat(leftTexts);
-  }
-
-  if (root.right) {
-    const [rightLines, rightCircles, rightTexts, rightCircle] = generateSVG(
-      root.right,
-      radius,
-      new Point(point.x, point.y),
-      new Point(p2.x, p2.y)
-    );
-
-    lines.push(new SVGLine(circle, rightCircle, "black", radius / 5));
-
-    lines = lines.concat(rightLines);
-    circles = circles.concat(rightCircles);
-    texts = texts.concat(rightTexts);
-  }
-
-  return [lines, circles, texts, circle];
-}
-
-function draw() {
-  const srcPoint = new Point(0, 0);
-  const dstPoint = new Point(100, 100);
-
-  const yDelta = dstPoint.y - srcPoint.y;
-
-  const [root, height] = generateTree(0, 100);
-  const tree = new SVGBinarySearchTree(root);
-
-  radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
-
-  [lines, circles, texts] = generateSVG(root, radius, srcPoint, dstPoint);
-
-  lines = lines.map((line) => line.generate());
-  circles = circles.map((circle) => circle.generate());
-  texts = texts.map((text) => text.generate());
-
-  elements = [...lines, ...circles, ...texts];
-  const innerHTML = elements.join("\n");
-  document.getElementById("visual").innerHTML = innerHTML;
-
-  tree.find(Math.round(Math.random() * 100));
 }
 
 function found(val) {
@@ -297,4 +297,6 @@ let radius;
 let texts, circles, lines;
 let elements;
 
-draw();
+const [root, height] = generateTree(0, 100);
+const tree = new SVGBinarySearchTree(root, height);
+tree.draw();
