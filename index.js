@@ -108,7 +108,7 @@ class SVGLine {
   }
 
   generate() {
-    return `<line data-src="${this.src.key}" data-dst="${this.dst.key} x1="${this.src.point.x}" y1="${this.src.point.y}" x2="${this.dst.point.x}" y2="${this.dst.point.y}" stroke="${this.stroke}" stroke-width="${this.strokeWidth}"></line>`;
+    return `<line data-src="${this.src.key}" data-dst="${this.dst.key}" x1="${this.src.point.x}" y1="${this.src.point.y}" x2="${this.dst.point.x}" y2="${this.dst.point.y}" stroke="${this.stroke}" stroke-width="${this.strokeWidth}"></line>`;
   }
 }
 
@@ -145,27 +145,27 @@ function generateSVG(root, radius, p1, p2) {
   const y = p1.y + radius * 3;
   const point = new Point(x, y);
 
-  circles.push(
-    new SVGCircle(point, root.key, radius, "black", radius / 5, "gray")
+  const circle = new SVGCircle(
+    point,
+    root.key,
+    radius,
+    "black",
+    radius / 5,
+    "gray"
   );
+  circles.push(circle);
 
   texts.push(new SVGText(root.key, point, radius, "white"));
 
   if (root.left) {
-    const [leftLines, leftCircles, leftTexts, leftPoint] = generateSVG(
+    const [leftLines, leftCircles, leftTexts, leftCircle] = generateSVG(
       root.left,
       radius,
       new Point(p1.x, point.y),
       new Point(point.x, p2.y)
     );
 
-    lines.push(
-      `<line data-src="${root.key}" data-dst="${root.left.key}" x1="${
-        point.x
-      }" y1="${point.y}" x2="${leftPoint.x}" y2="${
-        leftPoint.y
-      }" style="stroke: black; stroke-width: ${radius / 5}" />`
-    );
+    lines.push(new SVGLine(circle, leftCircle, "black", radius / 5));
 
     lines = lines.concat(leftLines);
     circles = circles.concat(leftCircles);
@@ -173,27 +173,21 @@ function generateSVG(root, radius, p1, p2) {
   }
 
   if (root.right) {
-    const [rightLines, rightCircles, rightTexts, rightPoint] = generateSVG(
+    const [rightLines, rightCircles, rightTexts, rightCircle] = generateSVG(
       root.right,
       radius,
       new Point(point.x, point.y),
       new Point(p2.x, p2.y)
     );
 
-    lines.push(
-      `<line data-src="${root.key}" data-dst="${root.right.key}" x1="${
-        point.x
-      }" y1="${point.y}" x2="${rightPoint.x}" y2="${
-        rightPoint.y
-      }" style="stroke: black; stroke-width: ${radius / 5}" />`
-    );
+    lines.push(new SVGLine(circle, rightCircle, "black", radius / 5));
 
     lines = lines.concat(rightLines);
     circles = circles.concat(rightCircles);
     texts = texts.concat(rightTexts);
   }
 
-  return [lines, circles, texts, point];
+  return [lines, circles, texts, circle];
 }
 
 function draw() {
@@ -209,6 +203,7 @@ function draw() {
 
   [lines, circles, texts] = generateSVG(root, radius, srcPoint, dstPoint);
 
+  lines = lines.map((line) => line.generate());
   circles = circles.map((circle) => circle.generate());
   texts = texts.map((text) => text.generate());
 
