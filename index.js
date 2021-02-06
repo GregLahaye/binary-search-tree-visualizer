@@ -12,29 +12,23 @@ class BinarySearchTree {
   }
 
   find(key) {
-    return this.findRec(key, this.root);
+    this.findRec(key, this.root);
   }
 
   async findRec(key, currNode) {
-    let value = null;
-
     if (currNode == null) {
       throw new Error("Key " + key + " not found");
     }
 
-    this.highlightCircle(currNode.key);
-    this.highlightLine(currNode.key);
-    await waitAsync(1000);
+    this.checkNode(currNode.key);
 
     if (key === currNode.key) {
-      value = currNode.key;
+      currNode.key;
     } else if (key < currNode.key) {
-      value = this.findRec(key, currNode.left);
+      this.findRec(key, currNode.left);
     } else {
-      value = this.findRec(key, currNode.right);
+      this.findRec(key, currNode.right);
     }
-
-    return value;
   }
 }
 
@@ -155,24 +149,29 @@ class SVGBinarySearchTree extends BinarySearchTree {
     this.render();
   }
 
-  highlightCircle(key) {
+  findCircle(key) {
     for (const circle of this.circles) {
       if (circle.key === key) {
-        circle.fill = "green";
+        return circle;
       }
     }
 
-    this.render();
+    throw new Error("Circle does not exist");
   }
 
-  highlightLine(key) {
+  findLine(key) {
     for (const line of this.lines) {
       if (line.dst.key === key) {
-        line.stroke = "green";
-        line.strokeWidth *= 2;
+        return line;
       }
     }
 
+    throw new Error("Line does not exist");
+  }
+
+  checkNode(key) {
+    const circle = this.findCircle(key);
+    circle.fill = "coral";
     this.render();
   }
 }
@@ -282,13 +281,17 @@ function waitAsync(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function insertKey() {}
+function insertKey() {
+  alert("Not implemented");
+}
 
-function deleteKey() {}
+function deleteKey() {
+  alert("Not implemented");
+}
 
 function findKey() {
   const input = document.getElementById("find-input");
-  tree.find(input.value);
+  tree.find(+input.value);
 }
 
 const TREE_SPAWN_MULTIPLIER = 6;
