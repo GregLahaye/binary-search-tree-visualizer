@@ -1,12 +1,10 @@
-class TreeNode {
-  constructor(val, left, right) {
-    this.val = val;
-    this.left = left;
-    this.right = right;
+class BinarySearchTree {
+  constructor(root) {
+    this.root = root;
   }
 
   find(key) {
-    return this.findRec(key, this);
+    return this.findRec(key, this.root);
   }
 
   async findRec(key, currNode) {
@@ -16,19 +14,27 @@ class TreeNode {
       throw new Error("Key " + key + " not found");
     }
 
-    highlight(currNode.val);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    highlight(currNode.key);
+    await waitAsync(1000);
 
-    if (key === currNode.val) {
-      value = currNode.val;
-      found(currNode.val);
-    } else if (key < currNode.val) {
+    if (key === currNode.key) {
+      value = currNode.key;
+      found(currNode.key);
+    } else if (key < currNode.key) {
       value = this.findRec(key, currNode.left);
     } else {
       value = this.findRec(key, currNode.right);
     }
 
     return value;
+  }
+}
+
+class BinarySearchTreeNode {
+  constructor(key, left, right) {
+    this.key = key;
+    this.left = left;
+    this.right = right;
   }
 }
 
@@ -51,7 +57,11 @@ function generateTree(lower, upper) {
   const [leftNode, leftHeight] = generateTree(lower, middle);
   const [rightNode, rightHeight] = generateTree(middle, upper);
 
-  const root = new TreeNode(Math.round(middle), leftNode, rightNode);
+  const root = new BinarySearchTreeNode(
+    Math.round(middle),
+    leftNode,
+    rightNode
+  );
 
   const height = Math.max(leftHeight, rightHeight) + 1;
 
@@ -69,13 +79,13 @@ function generateSVG(root, radius, p1, p2) {
   const point = new Point(x, y);
 
   circles.push(
-    `<circle data-value="${root.val}" cx="${point.x}" cy="${
+    `<circle data-value="${root.key}" cx="${point.x}" cy="${
       point.y
     }" r="${radius}" stroke="black" stroke-width="${radius / 5}" fill="gray" />`
   );
 
   texts.push(
-    `<text data-value="${root.val}" x="${point.x}" y="${point.y}" text-anchor="middle" alignment-baseline="middle" fill="white" font-size="${radius}">${root.val}</text>`
+    `<text data-value="${root.key}" x="${point.x}" y="${point.y}" text-anchor="middle" alignment-baseline="middle" fill="white" font-size="${radius}">${root.key}</text>`
   );
 
   if (root.left) {
@@ -87,7 +97,7 @@ function generateSVG(root, radius, p1, p2) {
     );
 
     lines.push(
-      `<line data-src="${root.val}" data-dst="${root.left.val}" x1="${
+      `<line data-src="${root.key}" data-dst="${root.left.key}" x1="${
         point.x
       }" y1="${point.y}" x2="${leftPoint.x}" y2="${
         leftPoint.y
@@ -108,7 +118,7 @@ function generateSVG(root, radius, p1, p2) {
     );
 
     lines.push(
-      `<line data-src="${root.val}" data-dst="${root.right.val}" x1="${
+      `<line data-src="${root.key}" data-dst="${root.right.key}" x1="${
         point.x
       }" y1="${point.y}" x2="${rightPoint.x}" y2="${
         rightPoint.y
@@ -130,6 +140,7 @@ function draw() {
   const yDelta = dstPoint.y - srcPoint.y;
 
   const [root, height] = generateTree(0, 100);
+  const tree = new BinarySearchTree(root);
 
   radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
 
@@ -139,7 +150,7 @@ function draw() {
   const innerHTML = elements.join("\n");
   document.getElementById("visual").innerHTML = innerHTML;
 
-  root.find(Math.round(Math.random() * 100));
+  tree.find(Math.round(Math.random() * 100));
 }
 
 function highlight(val) {
@@ -184,9 +195,7 @@ async function findNode(val) {
   const innerHTML = elements.join("\n");
   document.getElementById("visual").innerHTML = innerHTML;
 
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1000);
-  });
+  await waitAsync(1000);
 
   for (const element of document.getElementsByTagName("circle")) {
     if (Boolean(element.dataset.focus) === true) {
@@ -229,6 +238,10 @@ function deleteNode(srcVal, dstVal) {
       element.style.transition = "all 0.5s linear";
     }
   }
+}
+
+function waitAsync(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 const TREE_SPAWN_MULTIPLIER = 8;
