@@ -294,6 +294,10 @@ function findKey() {
   tree.find(+input.value);
 }
 
+function reset() {
+  tree.reset();
+}
+
 const TREE_SPAWN_MULTIPLIER = 6;
 const MAX_RADIUS = 5;
 
