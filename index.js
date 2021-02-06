@@ -20,7 +20,7 @@ class BinarySearchTree {
       throw new Error("Key " + key + " not found");
     }
 
-    this.checkNode(currNode.key);
+    this.checkNode(currNode.key, currNode === this.root);
 
     if (key === currNode.key) {
       currNode.key;
@@ -169,9 +169,15 @@ class SVGBinarySearchTree extends BinarySearchTree {
     throw new Error("Line does not exist");
   }
 
-  checkNode(key) {
+  checkNode(key, isRoot) {
     const circle = this.findCircle(key);
     circle.fill = "coral";
+
+    if (!isRoot) {
+      const line = this.findLine(key);
+      line.stroke = "coral";
+    }
+
     this.render();
   }
 }
