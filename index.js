@@ -282,10 +282,18 @@ function waitAsync(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const TREE_SPAWN_MULTIPLIER = 8;
+function insertKey() {}
+
+function deleteKey() {}
+
+function findKey() {
+  const input = document.getElementById("find-input");
+  tree.find(input.value);
+}
+
+const TREE_SPAWN_MULTIPLIER = 6;
 const MAX_RADIUS = 5;
 
 const root = generateTree(0, 100);
 const tree = new SVGBinarySearchTree(root);
 tree.draw();
-tree.find(28);
