@@ -68,17 +68,10 @@ class SVGBinarySearchTree extends BinarySearchTree {
     const y = p1.y + radius * 3;
     const point = new Point(x, y);
 
-    const circle = new SVGCircle(
-      point,
-      root.key,
-      radius,
-      "black",
-      radius / 5,
-      "gray"
-    );
+    const circle = new SVGCircle(point, root.key, radius);
     circles.push(circle);
 
-    texts.push(new SVGText(root.key, point, radius, "white"));
+    texts.push(new SVGText(root.key, point, radius));
 
     if (root.left) {
       const [leftCircle, leftLines, leftCircles, leftTexts] = this.generate(
@@ -88,7 +81,7 @@ class SVGBinarySearchTree extends BinarySearchTree {
         new Point(point.x, p2.y)
       );
 
-      lines.push(new SVGLine(circle, leftCircle, "black", radius / 5));
+      lines.push(new SVGLine(circle, leftCircle));
 
       lines = [...lines, ...leftLines];
       circles = [...circles, ...leftCircles];
@@ -103,7 +96,7 @@ class SVGBinarySearchTree extends BinarySearchTree {
         new Point(p2.x, p2.y)
       );
 
-      lines.push(new SVGLine(circle, rightCircle, "black", radius / 5));
+      lines.push(new SVGLine(circle, rightCircle));
 
       lines = [...lines, ...rightLines];
       circles = [...circles, ...rightCircles];
@@ -169,11 +162,15 @@ class SVGBinarySearchTree extends BinarySearchTree {
 }
 
 class SVGText {
-  constructor(key, point, fontSize, fill) {
+  constructor(key, point, fontSize) {
     this.key = key;
     this.point = point;
     this.fontSize = fontSize;
-    this.fill = fill;
+    this.fill = this.defaultFill;
+  }
+
+  get defaultFill() {
+    return "white";
   }
 
   generate() {
@@ -182,13 +179,25 @@ class SVGText {
 }
 
 class SVGCircle {
-  constructor(point, key, radius, stroke, strokeWidth, fill) {
+  constructor(point, key, radius) {
     this.point = point;
     this.key = key;
     this.radius = radius;
-    this.stroke = stroke;
-    this.strokeWidth = strokeWidth;
-    this.fill = fill;
+    this.stroke = this.defaultStroke;
+    this.strokeWidth = this.defaultStrokeWidth;
+    this.fill = this.defaultFill;
+  }
+
+  get defaultStroke() {
+    return "black";
+  }
+
+  get defaultStrokeWidth() {
+    return this.radius / 5;
+  }
+
+  get defaultFill() {
+    return "gray";
   }
 
   generate() {
@@ -197,11 +206,19 @@ class SVGCircle {
 }
 
 class SVGLine {
-  constructor(src, dst, stroke, strokeWidth) {
+  constructor(src, dst) {
     this.src = src;
     this.dst = dst;
-    this.stroke = stroke;
-    this.strokeWidth = strokeWidth;
+    this.stroke = this.defaultStroke;
+    this.strokeWidth = this.defaultStrokeWidth;
+  }
+
+  get defaultStroke() {
+    return "black";
+  }
+
+  get defaultStrokeWidth() {
+    return this.src.radius / 5;
   }
 
   generate() {
