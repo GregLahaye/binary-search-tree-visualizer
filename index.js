@@ -139,6 +139,22 @@ class SVGBinarySearchTree extends BinarySearchTree {
     document.getElementById("visual").innerHTML = innerHTML;
   }
 
+  reset() {
+    for (const circle of this.circles) {
+      circle.reset();
+    }
+
+    for (const text of this.texts) {
+      text.reset();
+    }
+
+    for (const line of this.lines) {
+      line.reset();
+    }
+
+    this.render();
+  }
+
   highlightCircle(key) {
     for (const circle of this.circles) {
       if (circle.key === key) {
@@ -176,6 +192,10 @@ class SVGText {
   generate() {
     return `<text data-key="${this.key}" x="${this.point.x}" y="${this.point.y}" font-size="${this.fontSize}" fill="${this.fill}" text-anchor="middle" alignment-baseline="middle">${this.key}</text>`;
   }
+
+  reset() {
+    this.fill = this.defaultFill;
+  }
 }
 
 class SVGCircle {
@@ -203,6 +223,12 @@ class SVGCircle {
   generate() {
     return `<circle data-key="${this.key}" cx="${this.point.x}" cy="${this.point.y}" r="${this.radius}" stroke="${this.stroke}" stroke-width="${this.strokeWidth}" fill="${this.fill}"></circle>`;
   }
+
+  reset() {
+    this.stroke = this.defaultStroke;
+    this.strokeWidth = this.defaultStrokeWidth;
+    this.fill = this.defaultFill;
+  }
 }
 
 class SVGLine {
@@ -223,6 +249,11 @@ class SVGLine {
 
   generate() {
     return `<line data-src="${this.src.key}" data-dst="${this.dst.key}" x1="${this.src.point.x}" y1="${this.src.point.y}" x2="${this.dst.point.x}" y2="${this.dst.point.y}" stroke="${this.stroke}" stroke-width="${this.strokeWidth}"></line>`;
+  }
+
+  reset() {
+    this.stroke = this.defaultStroke;
+    this.strokeWidth = this.defaultStrokeWidth;
   }
 }
 
