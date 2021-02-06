@@ -95,7 +95,7 @@ class SVGCircle {
   }
 
   generate() {
-    return `<circle data-key="${this.key}" cx="${this.point.x}" cy="${this.point.y}" radius="${this.radius}" stroke="${this.stroke}" stroke-width="${this.strokeWidth}" fill="${this.fill}"></circle>`;
+    return `<circle data-key="${this.key}" cx="${this.point.x}" cy="${this.point.y}" r="${this.radius}" stroke="${this.stroke}" stroke-width="${this.strokeWidth}" fill="${this.fill}"></circle>`;
   }
 }
 
@@ -146,9 +146,7 @@ function generateSVG(root, radius, p1, p2) {
   const point = new Point(x, y);
 
   circles.push(
-    `<circle data-value="${root.key}" cx="${point.x}" cy="${
-      point.y
-    }" r="${radius}" stroke="black" stroke-width="${radius / 5}" fill="gray" />`
+    new SVGCircle(point, root.key, radius, "black", radius / 5, "gray")
   );
 
   texts.push(
@@ -212,6 +210,8 @@ function draw() {
   radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
 
   [lines, circles, texts] = generateSVG(root, radius, srcPoint, dstPoint);
+
+  circles = circles.map((circle) => circle.generate());
 
   elements = [...lines, ...circles, ...texts];
   const innerHTML = elements.join("\n");
