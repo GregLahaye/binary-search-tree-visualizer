@@ -131,9 +131,10 @@ function draw() {
 
   const [root, height] = generateTree(0, 100);
 
-  const radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
+  radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
 
-  const [lines, circles, texts] = generateSVG(root, radius, srcPoint, dstPoint);
+  [lines, circles, texts] = generateSVG(root, radius, srcPoint, dstPoint);
+
   elements = [...lines, ...circles, ...texts];
   const innerHTML = elements.join("\n");
   document.getElementById("visual").innerHTML = innerHTML;
@@ -145,7 +146,6 @@ function highlight(val) {
   for (const element of document.getElementsByTagName("circle")) {
     if (+element.dataset.value === val) {
       element.style.fill = "coral";
-      element.classList.add("move");
     }
   }
 
@@ -161,6 +161,37 @@ function found(val) {
   for (const element of document.getElementsByTagName("circle")) {
     if (+element.dataset.value === val) {
       element.style.fill = "lime";
+    }
+  }
+}
+
+async function findNode(val) {
+  let point;
+
+  for (const element of document.getElementsByTagName("circle")) {
+    if (+element.dataset.value === val) {
+      point = new Point(element.getAttribute("cx"), element.getAttribute("cy"));
+    }
+  }
+
+  circles.push(
+    `<circle data-focus="true" cx="${point.x}" cy="${point.y}" r="${
+      radius * 1.2
+    }" stroke="coral" stroke-width="${radius / 3}" fill="none" />`
+  );
+
+  elements = [...lines, ...circles, ...texts];
+  const innerHTML = elements.join("\n");
+  document.getElementById("visual").innerHTML = innerHTML;
+
+  await new Promise((resolve) => {
+    setTimeout(resolve, 1000);
+  });
+
+  for (const element of document.getElementsByTagName("circle")) {
+    if (Boolean(element.dataset.focus) === true) {
+      element.style.transform = `translate(${10}px, ${10}px)`;
+      element.style.transition = "all 1.5s linear";
     }
   }
 }
@@ -183,9 +214,14 @@ function deleteNode(srcVal, dstVal) {
     }
   }
 
-  let movement = new Point(srcPoint.x - dstPoint.x, srcPoint.y - dstPoint.y);
+  const movement = new Point(srcPoint.x - dstPoint.x, srcPoint.y - dstPoint.y);
 
-  for (const element of document.getElementsByTagName("circle")) {
+  const texts = document.getElementsByTagName("text");
+  const circles = document.getElementsByTagName("circle");
+  const lines = document.getElementsByTagName("line");
+  const elements = [...texts, ...circles, ...lines];
+
+  for (const element of elements) {
     if (+element.dataset.value === srcVal) {
       element.classList.add("deleted");
     } else if (+element.dataset.value === dstVal) {
@@ -198,6 +234,8 @@ function deleteNode(srcVal, dstVal) {
 const TREE_SPAWN_MULTIPLIER = 8;
 const MAX_RADIUS = 5;
 
+let radius;
+let texts, circles, lines;
 let elements;
 
 draw();
