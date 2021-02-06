@@ -291,6 +291,7 @@ function deleteKey() {
 
 function findKey() {
   const input = document.getElementById("find-input");
+  tree.reset();
   tree.find(+input.value);
 }
 
@@ -298,10 +299,15 @@ function reset() {
   tree.reset();
 }
 
+function generate() {
+  const root = generateTree(0, MAX_UPPER);
+  tree = new SVGBinarySearchTree(root);
+  tree.draw();
+}
+
 const TREE_SPAWN_MULTIPLIER = 6;
 const MAX_RADIUS = 5;
 const MAX_UPPER = 1000;
 
-const root = generateTree(0, MAX_UPPER);
-const tree = new SVGBinarySearchTree(root);
-tree.draw();
+let tree;
+generate();
