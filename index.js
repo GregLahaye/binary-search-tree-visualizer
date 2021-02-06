@@ -44,13 +44,18 @@ class BinarySearchTreeNode {
     this.left = left;
     this.right = right;
   }
+
+  get height() {
+    const leftHeight = this.left ? this.left.height : 0;
+    const rightHeight = this.right ? this.right.height : 0;
+    return Math.max(leftHeight, rightHeight) + 1;
+  }
 }
 
 /* implements SVG methods */
 class SVGBinarySearchTree extends BinarySearchTree {
-  constructor(root, height) {
+  constructor(root) {
     super(root);
-    this.height = height;
   }
 
   generate(root, radius, p1, p2) {
@@ -114,7 +119,8 @@ class SVGBinarySearchTree extends BinarySearchTree {
 
     const yDelta = dstPoint.y - srcPoint.y;
 
-    radius = Math.min(yDelta / 2 ** this.height, MAX_RADIUS);
+    const height = this.root.height;
+    radius = Math.min(yDelta / 2 ** height, MAX_RADIUS);
 
     [lines, circles, texts] = this.generate(
       this.root,
@@ -195,13 +201,13 @@ function generateTree(lower, upper) {
   const delta = ((upper - lower) / 100) * TREE_SPAWN_MULTIPLIER;
 
   if (Math.random() > delta) {
-    return [null, 0];
+    return null;
   }
 
   const middle = (upper - lower) / 2 + lower;
 
-  const [leftNode, leftHeight] = generateTree(lower, middle);
-  const [rightNode, rightHeight] = generateTree(middle, upper);
+  const leftNode = generateTree(lower, middle);
+  const rightNode = generateTree(middle, upper);
 
   const root = new BinarySearchTreeNode(
     Math.round(middle),
@@ -209,9 +215,7 @@ function generateTree(lower, upper) {
     rightNode
   );
 
-  const height = Math.max(leftHeight, rightHeight) + 1;
-
-  return [root, height];
+  return root;
 }
 
 function found(val) {
@@ -297,6 +301,6 @@ let radius;
 let texts, circles, lines;
 let elements;
 
-const [root, height] = generateTree(0, 100);
-const tree = new SVGBinarySearchTree(root, height);
+const root = generateTree(0, 100);
+const tree = new SVGBinarySearchTree(root);
 tree.draw();
