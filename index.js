@@ -23,6 +23,7 @@ class BinarySearchTree {
     }
 
     this.highlightCircle(currNode.key);
+    this.highlightLine(currNode.key);
     await waitAsync(1000);
 
     if (key === currNode.key) {
@@ -154,6 +155,17 @@ class SVGBinarySearchTree extends BinarySearchTree {
 
     this.render();
   }
+
+  highlightLine(key) {
+    for (const line of this.lines) {
+      if (line.dst.key === key) {
+        line.stroke = "green";
+        line.strokeWidth *= 2;
+      }
+    }
+
+    this.render();
+  }
 }
 
 class SVGText {
@@ -228,4 +240,4 @@ const MAX_RADIUS = 5;
 const root = generateTree(0, 100);
 const tree = new SVGBinarySearchTree(root);
 tree.draw();
-tree.find(44);
+tree.find(28);
